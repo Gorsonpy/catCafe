@@ -10,3 +10,7 @@ type Mysql struct {
 	Passwd   string
 	Database string
 }
+type Redis struct {
+	Url  string
+	Port string
+}

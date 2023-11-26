@@ -1,0 +1,26 @@
+{
+    "sourceFile": "config/type.go",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 2,
+            "patches": [
+                {
+                    "date": 1701018934166,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1701018946988,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -9,5 +9,7 @@\n \tUsername string\n \tPasswd   string\n \tDatabase string\n }\n-type \n+type Redis struct{\n+\t\n+}\n"
+                },
+                {
+                    "date": 1701018975779,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -9,7 +9,8 @@\n \tUsername string\n \tPasswd   string\n \tDatabase string\n }\n-type Redis struct{\n-\t\n+type Redis struct {\n+\tUrl  string\n+\tPort string\n }\n"
+                }
+            ],
+            "date": 1701018934166,
+            "name": "Commit-0",
+            "content": "package config\n\ntype Config struct {\n\tMysql Mysql `json:\"mysql\"`\n}\ntype Mysql struct {\n\tUrl      string\n\tPort     string\n\tUsername string\n\tPasswd   string\n\tDatabase string\n}\ntype \n"
+        }
+    ]
+}
