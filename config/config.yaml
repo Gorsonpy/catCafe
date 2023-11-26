@@ -1,0 +1,7 @@
+mysql:
+  url: 47.115.205.220
+  port: 3306
+  username: root
+  passwd: su123456,,
+  database: catCafe
+

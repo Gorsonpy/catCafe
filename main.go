@@ -6,12 +6,15 @@ import (
 	"io"
 	"os"
 
+	"github.com/Gorsonpy/catCafe/biz/dal"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 )
 
 func main() {
 	h := server.Default()
+
+	// 配置日志等级，同时输出到终端和文件
 	f, err := os.OpenFile("./output.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
@@ -20,6 +23,9 @@ func main() {
 	fileWriter := io.MultiWriter(f, os.Stdout)
 	hlog.SetOutput(fileWriter)
 	hlog.SetLevel(hlog.LevelTrace)
+
+	// 数据库
+	dal.Init()
 	register(h)
 	h.Spin()
 }

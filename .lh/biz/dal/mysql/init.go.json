@@ -1,0 +1,38 @@
+{
+    "sourceFile": "biz/dal/mysql/init.go",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 5,
+            "patches": [
+                {
+                    "date": 1701004612375,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1701004838648,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -25,9 +25,9 @@\n \tif err != nil {\n \t\tpanic(err)\n \t}\n \tdsn := utils.GetMysqlDSN(&config)\n-\n+\troot:su123456,,@tcp(47.115.205.220:3366)/catCafe?charset=utf8mb4&parseTime=True&loc=Local\n \t// dsn = \"root:su123456,,@tcp(47.115.205.220:3306)/catCafe?charset=utf8&parseTime=True&loc=Local\"\n \tDB, err = gorm.Open(mysql.Open(dsn))\n \n \tif err != nil {\n"
+                },
+                {
+                    "date": 1701004896645,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -25,9 +25,9 @@\n \tif err != nil {\n \t\tpanic(err)\n \t}\n \tdsn := utils.GetMysqlDSN(&config)\n-\troot:su123456,,@tcp(47.115.205.220:3366)/catCafe?charset=utf8mb4&parseTime=True&loc=Local\n+\t// root:su123456,,@tcp(47.115.205.220:3366)/catCafe?charset=utf8mb4&parseTime=True&loc=Local\n \t// dsn = \"root:su123456,,@tcp(47.115.205.220:3306)/catCafe?charset=utf8&parseTime=True&loc=Local\"\n \tDB, err = gorm.Open(mysql.Open(dsn))\n \n \tif err != nil {\n"
+                },
+                {
+                    "date": 1701004938197,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -25,8 +25,9 @@\n \tif err != nil {\n \t\tpanic(err)\n \t}\n \tdsn := utils.GetMysqlDSN(&config)\n+\troot:su123456,,@tcp(47.115.205.220:3366)/catCafe?charset=utf8&parseTime=True&loc=Local\n \t// root:su123456,,@tcp(47.115.205.220:3366)/catCafe?charset=utf8mb4&parseTime=True&loc=Local\n \t// dsn = \"root:su123456,,@tcp(47.115.205.220:3306)/catCafe?charset=utf8&parseTime=True&loc=Local\"\n \tDB, err = gorm.Open(mysql.Open(dsn))\n \n"
+                },
+                {
+                    "date": 1701004994813,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -25,11 +25,8 @@\n \tif err != nil {\n \t\tpanic(err)\n \t}\n \tdsn := utils.GetMysqlDSN(&config)\n-\troot:su123456,,@tcp(47.115.205.220:3366)/catCafe?charset=utf8&parseTime=True&loc=Local\n-\t// root:su123456,,@tcp(47.115.205.220:3366)/catCafe?charset=utf8mb4&parseTime=True&loc=Local\n-\t// dsn = \"root:su123456,,@tcp(47.115.205.220:3306)/catCafe?charset=utf8&parseTime=True&loc=Local\"\n \tDB, err = gorm.Open(mysql.Open(dsn))\n \n \tif err != nil {\n \t\tpanic(err)\n"
+                },
+                {
+                    "date": 1701005038955,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,8 +7,10 @@\n \t\"github.com/Gorsonpy/catCafe/pkg/utils\"\n \t\"gopkg.in/yaml.v3\"\n \t\"gorm.io/driver/mysql\"\n \t\"gorm.io/gorm\"\n+\t\"gorm.io/gorm/logger\"\n+\t\"gorm.io/gorm/schema\"\n )\n \n var (\n \tdsn string\n@@ -25,9 +27,16 @@\n \tif err != nil {\n \t\tpanic(err)\n \t}\n \tdsn := utils.GetMysqlDSN(&config)\n-\tDB, err = gorm.Open(mysql.Open(dsn))\n+\tDB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{\n+\t\tPrepareStmt:            true,\n+\t\tSkipDefaultTransaction: true,                                // 禁用默认事务\n+\t\tLogger:                 logger.Default.LogMode(logger.Info), // 设置日志模式\n+\t\tNamingStrategy: schema.NamingStrategy{\n+\t\t\tSingularTable: true, // 使用单数表名\n+\t\t},\n+\t})\n \n \tif err != nil {\n \t\tpanic(err)\n \t}\n"
+                }
+            ],
+            "date": 1701004612375,
+            "name": "Commit-0",
+            "content": "package mysql\n\nimport (\n\t\"os\"\n\n\t\"github.com/Gorsonpy/catCafe/config\"\n\t\"github.com/Gorsonpy/catCafe/pkg/utils\"\n\t\"gopkg.in/yaml.v3\"\n\t\"gorm.io/driver/mysql\"\n\t\"gorm.io/gorm\"\n)\n\nvar (\n\tdsn string\n\tDB  *gorm.DB\n)\n\nfunc Init() {\n\tdataBytes, err := os.ReadFile(\"../config/config.yaml\")\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tconfig := config.Config{}\n\tyaml.Unmarshal(dataBytes, &config)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tdsn := utils.GetMysqlDSN(&config)\n\n\t// dsn = \"root:su123456,,@tcp(47.115.205.220:3306)/catCafe?charset=utf8&parseTime=True&loc=Local\"\n\tDB, err = gorm.Open(mysql.Open(dsn))\n\n\tif err != nil {\n\t\tpanic(err)\n\t}\n}\n"
+        }
+    ]
+}
