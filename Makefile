@@ -13,7 +13,7 @@ new:
 
 .PHONY: gen
 gen:
-
+	hz update -idl ./idl/membership.thrift
 .PHONY: server
 server:
 	make build
