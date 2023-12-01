@@ -7,6 +7,7 @@ require (
 	github.com/cloudwego/hertz v0.7.2
 	github.com/cloudwego/kitex v0.7.3
 	github.com/golang-jwt/jwt v3.2.2+incompatible
+	golang.org/x/crypto v0.16.0
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/driver/mysql v1.5.2
 	gorm.io/gorm v1.25.5
@@ -32,7 +33,6 @@ require (
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	golang.org/x/arch v0.2.0 // indirect
-	golang.org/x/crypto v0.16.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 )
