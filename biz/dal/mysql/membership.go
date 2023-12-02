@@ -15,6 +15,7 @@ type Membership struct {
 	Level            string
 	RegistrationDate time.Time
 	Passwd           string
+	IsAdmin          bool
 }
 
 func ExistUsername(username string) bool {
@@ -26,11 +27,17 @@ func AddMembership(m *membership.MembershipModel) error {
 	mem.Username = m.Username
 	mem.Passwd = m.Passwd
 	mem.RegistrationDate = time.Now()
-	return DB.Table("memberships").Create(mem).Error
+	return DB.Table("memberships").Create(&mem).Error
 }
 
 func GetMembershipByUsername(username string) *Membership {
 	mem := &Membership{}
-	DB.Table("memberships").Where("username = ?", username).First(mem)
+	DB.Table("memberships").Where("username = ?", username).First(&mem)
 	return mem
+}
+
+func IsAdmin(userId int64) bool {
+	mem := &Membership{}
+	DB.Table("memberships").Where("customer_id = ?", userId).First(&mem)
+	return mem.IsAdmin
 }

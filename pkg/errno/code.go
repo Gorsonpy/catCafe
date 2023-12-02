@@ -9,6 +9,10 @@ const (
 	SuccessCode = 10000
 	SuccessMsg  = "ok"
 
+	// admin
+	PermissionFailedMsg = "权限不足"
+	UnLoginFailedMsg    = "未登录状态"
+
 	// Error
 	ServiceErrorCode           = 10001 // 未知微服务错误
 	ParamErrorCode             = 10002 // 参数错误

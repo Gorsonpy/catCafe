@@ -24,7 +24,7 @@ func MembershipRegister(username string, passwd string) (int64, string) {
 	if err != nil {
 		return errno.CreateError.ErrorCode, "user create error"
 	}
-	return errno.SuccessCode, errno.SuccessMsg
+	return errno.StatusSuccessCode, errno.SuccessMsg
 }
 
 func MembershipLogin(username string, passwd string) (int64, string, string) {
@@ -40,5 +40,5 @@ func MembershipLogin(username string, passwd string) (int64, string, string) {
 	if err != nil {
 		return -1, "token生成失败", ""
 	}
-	return errno.SuccessCode, errno.SuccessMsg, token
+	return errno.StatusSuccessCode, errno.SuccessMsg, token
 }

@@ -4,11 +4,14 @@ package cat
 
 import (
 	"context"
+	"strconv"
 
+	"github.com/Gorsonpy/catCafe/biz/dal/mysql"
 	cat "github.com/Gorsonpy/catCafe/biz/model/cat"
 	"github.com/Gorsonpy/catCafe/biz/pack"
 	"github.com/Gorsonpy/catCafe/biz/service"
 	"github.com/Gorsonpy/catCafe/pkg/errno"
+	"github.com/Gorsonpy/catCafe/pkg/utils"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
@@ -52,6 +55,15 @@ func AddCat(ctx context.Context, c *app.RequestContext) {
 	var req cat.CatModel
 	err = c.BindAndValidate(&req)
 	resp := new(cat.AddCatResp)
+
+	token_byte := c.GetHeader("token")
+	claim, _ := utils.CheckToken(string(token_byte))
+	if !mysql.IsAdmin(claim.UserId) {
+		pack.PackAddCatResp(resp, errno.AuthorizationFailedErrCode, errno.PermissionFailedMsg, -1)
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
 	if err != nil {
 		pack.PackAddCatResp(resp, errno.ParamErrorCode, err.Error(), -1)
 		c.JSON(consts.StatusOK, resp)
@@ -82,15 +94,15 @@ func DelCat(ctx context.Context, c *app.RequestContext) {
 // QueryCatsByPop .
 // @router /cat/limit [GET]
 func QueryCatsByPop(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req cat.BaseRequest
-	err = c.BindAndValidate(&req)
+	resp := new(cat.QueryCatsResp)
+	limit, err := strconv.Atoi(c.Query("limit"))
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		pack.PackQueryCatsResp(resp, errno.AuthorizationFailedErrCode, errno.UnLoginFailedMsg, nil)
+		c.JSON(consts.StatusOK, resp)
 		return
 	}
 
-	resp := new(cat.QueryCatsResp)
-
+	code, msg, cats := service.QueryTopCats(int64(limit))
+	pack.PackQueryCatsResp(resp, code, msg, cats)
 	c.JSON(consts.StatusOK, resp)
 }
