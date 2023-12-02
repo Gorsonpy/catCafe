@@ -273,14 +273,15 @@ func (p *BaseResponse) String() string {
 }
 
 type CatModel struct {
-	CatId        int64  `thrift:"catId,1" form:"catId" json:"catId" query:"catId"`
-	Name         string `thrift:"name,2" form:"name" json:"name" query:"name"`
-	Breed        string `thrift:"breed,3" form:"breed" json:"breed" query:"breed"`
-	Gender       string `thrift:"gender,4" form:"gender" json:"gender" query:"gender"`
-	Age          int64  `thrift:"age,5" form:"age" json:"age" query:"age"`
-	HealthStatus string `thrift:"healthStatus,6" form:"healthStatus" json:"healthStatus" query:"healthStatus"`
-	PhotoUrl     string `thrift:"photoUrl,7" form:"photoUrl" json:"photoUrl" query:"photoUrl"`
-	CheckInDate  string `thrift:"checkInDate,8" form:"checkInDate" json:"checkInDate" query:"checkInDate"`
+	CatId          int64  `thrift:"catId,1" form:"catId" json:"catId" query:"catId"`
+	Name           string `thrift:"name,2" form:"name" json:"name" query:"name"`
+	Breed          string `thrift:"breed,3" form:"breed" json:"breed" query:"breed"`
+	Gender         string `thrift:"gender,4" form:"gender" json:"gender" query:"gender"`
+	Age            int64  `thrift:"age,5" form:"age" json:"age" query:"age"`
+	HealthStatus   string `thrift:"healthStatus,6" form:"healthStatus" json:"healthStatus" query:"healthStatus"`
+	PhotoUrl       string `thrift:"photoUrl,7" form:"photoUrl" json:"photoUrl" query:"photoUrl"`
+	CheckInDate    string `thrift:"checkInDate,8" form:"checkInDate" json:"checkInDate" query:"checkInDate"`
+	AppointmentNum int64  `thrift:"appointmentNum,9" form:"appointmentNum" json:"appointmentNum" query:"appointmentNum"`
 }
 
 func NewCatModel() *CatModel {
@@ -319,6 +320,10 @@ func (p *CatModel) GetCheckInDate() (v string) {
 	return p.CheckInDate
 }
 
+func (p *CatModel) GetAppointmentNum() (v int64) {
+	return p.AppointmentNum
+}
+
 var fieldIDToName_CatModel = map[int16]string{
 	1: "catId",
 	2: "name",
@@ -328,6 +333,7 @@ var fieldIDToName_CatModel = map[int16]string{
 	6: "healthStatus",
 	7: "photoUrl",
 	8: "checkInDate",
+	9: "appointmentNum",
 }
 
 func (p *CatModel) Read(iprot thrift.TProtocol) (err error) {
@@ -422,6 +428,16 @@ func (p *CatModel) Read(iprot thrift.TProtocol) (err error) {
 		case 8:
 			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField8(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 9:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField9(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else {
@@ -531,6 +547,15 @@ func (p *CatModel) ReadField8(iprot thrift.TProtocol) error {
 	return nil
 }
 
+func (p *CatModel) ReadField9(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		p.AppointmentNum = v
+	}
+	return nil
+}
+
 func (p *CatModel) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
 	if err = oprot.WriteStructBegin("CatModel"); err != nil {
@@ -567,6 +592,10 @@ func (p *CatModel) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField8(oprot); err != nil {
 			fieldId = 8
+			goto WriteFieldError
+		}
+		if err = p.writeField9(oprot); err != nil {
+			fieldId = 9
 			goto WriteFieldError
 		}
 
@@ -722,6 +751,23 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 8 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 8 end error: ", p), err)
+}
+
+func (p *CatModel) writeField9(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("appointmentNum", thrift.I64, 9); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.AppointmentNum); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 9 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 9 end error: ", p), err)
 }
 
 func (p *CatModel) String() string {
@@ -1579,6 +1625,8 @@ func (p *QueryCatsResp) String() string {
 }
 
 type CatService interface {
+	QueryCatsByPop(ctx context.Context, req *BaseRequest) (r *QueryCatsResp, err error)
+
 	UpdateCat(ctx context.Context, req *CatModel) (r *BaseResponse, err error)
 
 	QueryCats(ctx context.Context, req *QueryCatsReq) (r *QueryCatsResp, err error)
@@ -1614,6 +1662,15 @@ func (p *CatServiceClient) Client_() thrift.TClient {
 	return p.c
 }
 
+func (p *CatServiceClient) QueryCatsByPop(ctx context.Context, req *BaseRequest) (r *QueryCatsResp, err error) {
+	var _args CatServiceQueryCatsByPopArgs
+	_args.Req = req
+	var _result CatServiceQueryCatsByPopResult
+	if err = p.Client_().Call(ctx, "queryCatsByPop", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
 func (p *CatServiceClient) UpdateCat(ctx context.Context, req *CatModel) (r *BaseResponse, err error) {
 	var _args CatServiceUpdateCatArgs
 	_args.Req = req
@@ -1627,7 +1684,7 @@ func (p *CatServiceClient) QueryCats(ctx context.Context, req *QueryCatsReq) (r 
 	var _args CatServiceQueryCatsArgs
 	_args.Req = req
 	var _result CatServiceQueryCatsResult
-	if err = p.Client_().Call(ctx, "QueryCats", &_args, &_result); err != nil {
+	if err = p.Client_().Call(ctx, "queryCats", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
@@ -1636,7 +1693,7 @@ func (p *CatServiceClient) AddCat(ctx context.Context, req *CatModel) (r *AddCat
 	var _args CatServiceAddCatArgs
 	_args.Req = req
 	var _result CatServiceAddCatResult
-	if err = p.Client_().Call(ctx, "AddCat", &_args, &_result); err != nil {
+	if err = p.Client_().Call(ctx, "addCat", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
@@ -1645,7 +1702,7 @@ func (p *CatServiceClient) DelCat(ctx context.Context, req *BaseRequest) (r *Bas
 	var _args CatServiceDelCatArgs
 	_args.Req = req
 	var _result CatServiceDelCatResult
-	if err = p.Client_().Call(ctx, "DelCat", &_args, &_result); err != nil {
+	if err = p.Client_().Call(ctx, "delCat", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
@@ -1671,10 +1728,11 @@ func (p *CatServiceProcessor) ProcessorMap() map[string]thrift.TProcessorFunctio
 
 func NewCatServiceProcessor(handler CatService) *CatServiceProcessor {
 	self := &CatServiceProcessor{handler: handler, processorMap: make(map[string]thrift.TProcessorFunction)}
+	self.AddToProcessorMap("queryCatsByPop", &catServiceProcessorQueryCatsByPop{handler: handler})
 	self.AddToProcessorMap("updateCat", &catServiceProcessorUpdateCat{handler: handler})
-	self.AddToProcessorMap("QueryCats", &catServiceProcessorQueryCats{handler: handler})
-	self.AddToProcessorMap("AddCat", &catServiceProcessorAddCat{handler: handler})
-	self.AddToProcessorMap("DelCat", &catServiceProcessorDelCat{handler: handler})
+	self.AddToProcessorMap("queryCats", &catServiceProcessorQueryCats{handler: handler})
+	self.AddToProcessorMap("addCat", &catServiceProcessorAddCat{handler: handler})
+	self.AddToProcessorMap("delCat", &catServiceProcessorDelCat{handler: handler})
 	return self
 }
 func (p *CatServiceProcessor) Process(ctx context.Context, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
@@ -1693,6 +1751,54 @@ func (p *CatServiceProcessor) Process(ctx context.Context, iprot, oprot thrift.T
 	oprot.WriteMessageEnd()
 	oprot.Flush(ctx)
 	return false, x
+}
+
+type catServiceProcessorQueryCatsByPop struct {
+	handler CatService
+}
+
+func (p *catServiceProcessorQueryCatsByPop) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := CatServiceQueryCatsByPopArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("queryCatsByPop", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := CatServiceQueryCatsByPopResult{}
+	var retval *QueryCatsResp
+	if retval, err2 = p.handler.QueryCatsByPop(ctx, args.Req); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing queryCatsByPop: "+err2.Error())
+		oprot.WriteMessageBegin("queryCatsByPop", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return true, err2
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("queryCatsByPop", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
 }
 
 type catServiceProcessorUpdateCat struct {
@@ -1752,7 +1858,7 @@ func (p *catServiceProcessorQueryCats) Process(ctx context.Context, seqId int32,
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("QueryCats", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("queryCats", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -1764,8 +1870,8 @@ func (p *catServiceProcessorQueryCats) Process(ctx context.Context, seqId int32,
 	result := CatServiceQueryCatsResult{}
 	var retval *QueryCatsResp
 	if retval, err2 = p.handler.QueryCats(ctx, args.Req); err2 != nil {
-		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing QueryCats: "+err2.Error())
-		oprot.WriteMessageBegin("QueryCats", thrift.EXCEPTION, seqId)
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing queryCats: "+err2.Error())
+		oprot.WriteMessageBegin("queryCats", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -1773,7 +1879,7 @@ func (p *catServiceProcessorQueryCats) Process(ctx context.Context, seqId int32,
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("QueryCats", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("queryCats", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -1800,7 +1906,7 @@ func (p *catServiceProcessorAddCat) Process(ctx context.Context, seqId int32, ip
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("AddCat", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("addCat", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -1812,8 +1918,8 @@ func (p *catServiceProcessorAddCat) Process(ctx context.Context, seqId int32, ip
 	result := CatServiceAddCatResult{}
 	var retval *AddCatResp
 	if retval, err2 = p.handler.AddCat(ctx, args.Req); err2 != nil {
-		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing AddCat: "+err2.Error())
-		oprot.WriteMessageBegin("AddCat", thrift.EXCEPTION, seqId)
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing addCat: "+err2.Error())
+		oprot.WriteMessageBegin("addCat", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -1821,7 +1927,7 @@ func (p *catServiceProcessorAddCat) Process(ctx context.Context, seqId int32, ip
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("AddCat", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("addCat", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -1848,7 +1954,7 @@ func (p *catServiceProcessorDelCat) Process(ctx context.Context, seqId int32, ip
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("DelCat", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("delCat", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -1860,8 +1966,8 @@ func (p *catServiceProcessorDelCat) Process(ctx context.Context, seqId int32, ip
 	result := CatServiceDelCatResult{}
 	var retval *BaseResponse
 	if retval, err2 = p.handler.DelCat(ctx, args.Req); err2 != nil {
-		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing DelCat: "+err2.Error())
-		oprot.WriteMessageBegin("DelCat", thrift.EXCEPTION, seqId)
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing delCat: "+err2.Error())
+		oprot.WriteMessageBegin("delCat", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -1869,7 +1975,7 @@ func (p *catServiceProcessorDelCat) Process(ctx context.Context, seqId int32, ip
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("DelCat", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("delCat", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -1885,6 +1991,298 @@ func (p *catServiceProcessorDelCat) Process(ctx context.Context, seqId int32, ip
 		return
 	}
 	return true, err
+}
+
+type CatServiceQueryCatsByPopArgs struct {
+	Req *BaseRequest `thrift:"req,1"`
+}
+
+func NewCatServiceQueryCatsByPopArgs() *CatServiceQueryCatsByPopArgs {
+	return &CatServiceQueryCatsByPopArgs{}
+}
+
+var CatServiceQueryCatsByPopArgs_Req_DEFAULT *BaseRequest
+
+func (p *CatServiceQueryCatsByPopArgs) GetReq() (v *BaseRequest) {
+	if !p.IsSetReq() {
+		return CatServiceQueryCatsByPopArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+var fieldIDToName_CatServiceQueryCatsByPopArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *CatServiceQueryCatsByPopArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *CatServiceQueryCatsByPopArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_CatServiceQueryCatsByPopArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *CatServiceQueryCatsByPopArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = NewBaseRequest()
+	if err := p.Req.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *CatServiceQueryCatsByPopArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("queryCatsByPop_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *CatServiceQueryCatsByPopArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *CatServiceQueryCatsByPopArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CatServiceQueryCatsByPopArgs(%+v)", *p)
+}
+
+type CatServiceQueryCatsByPopResult struct {
+	Success *QueryCatsResp `thrift:"success,0,optional"`
+}
+
+func NewCatServiceQueryCatsByPopResult() *CatServiceQueryCatsByPopResult {
+	return &CatServiceQueryCatsByPopResult{}
+}
+
+var CatServiceQueryCatsByPopResult_Success_DEFAULT *QueryCatsResp
+
+func (p *CatServiceQueryCatsByPopResult) GetSuccess() (v *QueryCatsResp) {
+	if !p.IsSetSuccess() {
+		return CatServiceQueryCatsByPopResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var fieldIDToName_CatServiceQueryCatsByPopResult = map[int16]string{
+	0: "success",
+}
+
+func (p *CatServiceQueryCatsByPopResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *CatServiceQueryCatsByPopResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_CatServiceQueryCatsByPopResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *CatServiceQueryCatsByPopResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = NewQueryCatsResp()
+	if err := p.Success.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *CatServiceQueryCatsByPopResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("queryCatsByPop_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *CatServiceQueryCatsByPopResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *CatServiceQueryCatsByPopResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CatServiceQueryCatsByPopResult(%+v)", *p)
 }
 
 type CatServiceUpdateCatArgs struct {
@@ -2273,7 +2671,7 @@ func (p *CatServiceQueryCatsArgs) ReadField1(iprot thrift.TProtocol) error {
 
 func (p *CatServiceQueryCatsArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("QueryCats_args"); err != nil {
+	if err = oprot.WriteStructBegin("queryCats_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -2418,7 +2816,7 @@ func (p *CatServiceQueryCatsResult) ReadField0(iprot thrift.TProtocol) error {
 
 func (p *CatServiceQueryCatsResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("QueryCats_result"); err != nil {
+	if err = oprot.WriteStructBegin("queryCats_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -2565,7 +2963,7 @@ func (p *CatServiceAddCatArgs) ReadField1(iprot thrift.TProtocol) error {
 
 func (p *CatServiceAddCatArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("AddCat_args"); err != nil {
+	if err = oprot.WriteStructBegin("addCat_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -2710,7 +3108,7 @@ func (p *CatServiceAddCatResult) ReadField0(iprot thrift.TProtocol) error {
 
 func (p *CatServiceAddCatResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("AddCat_result"); err != nil {
+	if err = oprot.WriteStructBegin("addCat_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -2857,7 +3255,7 @@ func (p *CatServiceDelCatArgs) ReadField1(iprot thrift.TProtocol) error {
 
 func (p *CatServiceDelCatArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("DelCat_args"); err != nil {
+	if err = oprot.WriteStructBegin("delCat_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -3002,7 +3400,7 @@ func (p *CatServiceDelCatResult) ReadField0(iprot thrift.TProtocol) error {
 
 func (p *CatServiceDelCatResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("DelCat_result"); err != nil {
+	if err = oprot.WriteStructBegin("delCat_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {

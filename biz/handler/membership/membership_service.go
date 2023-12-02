@@ -7,7 +7,7 @@ import (
 
 	membership "github.com/Gorsonpy/catCafe/biz/model/membership"
 	"github.com/Gorsonpy/catCafe/biz/pack"
-	userService "github.com/Gorsonpy/catCafe/biz/service"
+	"github.com/Gorsonpy/catCafe/biz/service"
 	"github.com/Gorsonpy/catCafe/pkg/errno"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -26,7 +26,7 @@ func MembershipLogin(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	code, msg, token := userService.MembershipLogin(req.Username, req.Passwd)
+	code, msg, token := service.MembershipLogin(req.Username, req.Passwd)
 	pack.PackLoginResp(resp, code, msg, token)
 	c.JSON(consts.StatusOK, resp)
 }
@@ -43,7 +43,7 @@ func MembershipRegister(ctx context.Context, c *app.RequestContext) {
 		c.JSON(consts.StatusOK, resp)
 		return
 	}
-	code, msg := userService.MembershipRegister(req.Username, req.Passwd)
+	code, msg := service.MembershipRegister(req.Username, req.Passwd)
 	pack.PackBase(resp, code, msg)
 	c.JSON(consts.StatusOK, resp)
 }

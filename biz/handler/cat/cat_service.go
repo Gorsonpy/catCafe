@@ -6,6 +6,9 @@ import (
 	"context"
 
 	cat "github.com/Gorsonpy/catCafe/biz/model/cat"
+	"github.com/Gorsonpy/catCafe/biz/pack"
+	"github.com/Gorsonpy/catCafe/biz/service"
+	"github.com/Gorsonpy/catCafe/pkg/errno"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
@@ -48,13 +51,15 @@ func AddCat(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req cat.CatModel
 	err = c.BindAndValidate(&req)
+	resp := new(cat.AddCatResp)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		pack.PackAddCatResp(resp, errno.ParamErrorCode, err.Error(), -1)
+		c.JSON(consts.StatusOK, resp)
 		return
 	}
 
-	resp := new(cat.AddCatResp)
-
+	code, msg, catId := service.AddCat(&req)
+	pack.PackAddCatResp(resp, code, msg, catId)
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -70,6 +75,22 @@ func DelCat(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(cat.BaseResponse)
+
+	c.JSON(consts.StatusOK, resp)
+}
+
+// QueryCatsByPop .
+// @router /cat/limit [GET]
+func QueryCatsByPop(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req cat.BaseRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := new(cat.QueryCatsResp)
 
 	c.JSON(consts.StatusOK, resp)
 }

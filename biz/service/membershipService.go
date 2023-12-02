@@ -1,4 +1,4 @@
-package userService
+package service
 
 import (
 	"github.com/Gorsonpy/catCafe/biz/dal/mysql"

@@ -30,3 +30,13 @@ func _delcatMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _catMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _querycatsbypopMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

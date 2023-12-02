@@ -17,7 +17,8 @@ struct CatModel{
     5: i64 age,
     6: string healthStatus,
     7: string photoUrl,
-    8: string checkInDate
+    8: string checkInDate,
+    9: i64 appointmentNum,
 }
 
 struct AddCatResp{
@@ -40,8 +41,9 @@ struct QueryCatsResp{
 }
 
 service CatService{
+    QueryCatsResp queryCatsByPop(1:BaseRequest req)(api.get = "/cat/limit")
     BaseResponse updateCat(1:CatModel req)(api.put = "/cat")
-    QueryCatsResp QueryCats(1:QueryCatsReq req)(api.get = "/cat") 
-    AddCatResp AddCat(1:CatModel req)(api.post = "/cat")
-    BaseResponse DelCat(1:BaseRequest req)(api.delete = "/cat")
+    QueryCatsResp queryCats(1:QueryCatsReq req)(api.get = "/cat") 
+    AddCatResp addCat(1:CatModel req)(api.post = "/cat")
+    BaseResponse delCat(1:BaseRequest req)(api.delete = "/cat")
 }
