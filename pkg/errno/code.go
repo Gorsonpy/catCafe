@@ -12,6 +12,7 @@ const (
 	// admin
 	PermissionFailedMsg = "权限不足"
 	UnLoginFailedMsg    = "未登录状态"
+	ParamErrorMsg = "参数错误"
 
 	// Error
 	ServiceErrorCode           = 10001 // 未知微服务错误

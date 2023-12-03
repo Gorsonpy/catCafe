@@ -27,13 +27,12 @@ struct AddCatResp{
 }
 
 struct QueryCatsReq{
-    1: string name
+    1: string searchContent
     2: string breed
     3: string gender
-    4: string lAge
-    5: string rAge
-    6: string healthStatus
-    7: i64 limit
+    4: i64 lAge
+    5: i64 rAge
+    6: i64 limit
 }
 struct QueryCatsResp{
     1: BaseResponse base

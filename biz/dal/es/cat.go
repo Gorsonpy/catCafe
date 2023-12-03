@@ -8,6 +8,7 @@ import (
 
 	"github.com/Gorsonpy/catCafe/biz/model/cat"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/olivere/elastic/v7"
 )
 
 type Cat struct {
@@ -22,16 +23,68 @@ type Cat struct {
 	AppointmentNum int64     `json:"appointmentNum"`
 }
 
-// MarshalJSON 实现了 time.Time 的自定义 JSON 格式化
-func (cat *Cat) MarshalJSON() ([]byte, error) {
-	type Alias Cat // 别名，以防止无限递归调用
-	return json.Marshal(&struct {
-		CheckInDate string `json:"checkInDate"`
-		*Alias
-	}{
-		CheckInDate: cat.CheckInDate.Format("2006-01-02 15:04:05"),
-		Alias:       (*Alias)(cat),
-	})
+func QueryCats(req *cat.QueryCatsReq) ([]*Cat, error) {
+	// 构建查询条件
+	query := elastic.NewBoolQuery().
+		Should(
+			elastic.NewMatchQuery("name", req.SearchContent).Fuzziness("AUTO"),
+			elastic.NewMatchQuery("name.pinyin", req.SearchContent).Fuzziness("AUTO"),
+			elastic.NewMatchQuery("breed", req.SearchContent).Fuzziness("AUTO"),
+			elastic.NewMatchQuery("breed.pinyin", req.SearchContent).Fuzziness("AUTO"),
+			elastic.NewMatchQuery("gender", req.SearchContent).Fuzziness("AUTO"),
+			elastic.NewMatchQuery("healthStatus", req.SearchContent).Fuzziness("AUTO"),
+			elastic.NewMatchQuery("healthStatus.pinyin", req.SearchContent).Fuzziness("AUTO"),
+		)
+
+	if req.LAge != 0 {
+		// 添加范围过滤条件
+		query = query.Filter(elastic.NewRangeQuery("age").Gte(req.LAge))
+	}
+
+	if req.RAge != 0 {
+		query = query.Filter(elastic.NewRangeQuery("age").Lte(req.RAge))
+	}
+
+	// 添加性别过滤条件
+	if req.Gender != "" {
+		query = query.Filter(elastic.NewTermQuery("gender.keyword", req.Gender))
+	}
+
+	// 添加品种过滤条件
+	if req.Breed != "" {
+		query = query.Filter(elastic.NewTermQuery("breed.keyword", req.Breed))
+	}
+
+	// 构建搜索请求
+	searchResult, err := EsClient.Search().
+		Index("cat_index"). // 替换为实际的索引名称
+		Query(query).
+		Size(int(req.Limit)). // 设置返回的文档数量限制
+		Do(context.Background())
+	if err != nil {
+		// 处理错误
+		return nil, err
+	}
+
+	// 处理搜索结果
+	var cats []*Cat
+	for _, hit := range searchResult.Hits.Hits {
+		// 将 Source 转为字符串
+		sourceStr := string(hit.Source)
+		// 打印文档内容
+		fmt.Println("Document Source:", sourceStr)
+
+		var cat Cat
+		err := json.Unmarshal(hit.Source, &cat)
+		if err != nil {
+			// 处理解析错误
+			return nil, err
+		}
+		cats = append(cats, &cat)
+	}
+
+	// 返回查询结果
+	return cats, nil
 }
 
 func CatToModel(c []*Cat) []*cat.CatModel {

@@ -9,6 +9,14 @@ import (
 	"github.com/Gorsonpy/catCafe/pkg/errno"
 )
 
+func QueryCats(req *cat.QueryCatsReq) (int64, string, []*cat.CatModel) {
+	cats, err := es.QueryCats(req)
+	if err != nil {
+		return errno.GetErrorCode, err.Error(), nil
+	}
+	list := es.CatToModel(cats)
+	return errno.StatusSuccessCode, errno.SuccessMsg, list
+}
 func QueryTopCats(k int64) (int64, string, []*cat.CatModel) {
 	cats := mysql.QueryTopCats(k)
 	list := es.CatToModel(cats)

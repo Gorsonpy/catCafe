@@ -1002,21 +1002,20 @@ func (p *AddCatResp) String() string {
 }
 
 type QueryCatsReq struct {
-	Name         string `thrift:"name,1" form:"name" json:"name" query:"name"`
-	Breed        string `thrift:"breed,2" form:"breed" json:"breed" query:"breed"`
-	Gender       string `thrift:"gender,3" form:"gender" json:"gender" query:"gender"`
-	LAge         string `thrift:"lAge,4" form:"lAge" json:"lAge" query:"lAge"`
-	RAge         string `thrift:"rAge,5" form:"rAge" json:"rAge" query:"rAge"`
-	HealthStatus string `thrift:"healthStatus,6" form:"healthStatus" json:"healthStatus" query:"healthStatus"`
-	Limit        int64  `thrift:"limit,7" form:"limit" json:"limit" query:"limit"`
+	SearchContent string `thrift:"searchContent,1" form:"searchContent" json:"searchContent" query:"searchContent"`
+	Breed         string `thrift:"breed,2" form:"breed" json:"breed" query:"breed"`
+	Gender        string `thrift:"gender,3" form:"gender" json:"gender" query:"gender"`
+	LAge          int64  `thrift:"lAge,4" form:"lAge" json:"lAge" query:"lAge"`
+	RAge          int64  `thrift:"rAge,5" form:"rAge" json:"rAge" query:"rAge"`
+	Limit         int64  `thrift:"limit,6" form:"limit" json:"limit" query:"limit"`
 }
 
 func NewQueryCatsReq() *QueryCatsReq {
 	return &QueryCatsReq{}
 }
 
-func (p *QueryCatsReq) GetName() (v string) {
-	return p.Name
+func (p *QueryCatsReq) GetSearchContent() (v string) {
+	return p.SearchContent
 }
 
 func (p *QueryCatsReq) GetBreed() (v string) {
@@ -1027,16 +1026,12 @@ func (p *QueryCatsReq) GetGender() (v string) {
 	return p.Gender
 }
 
-func (p *QueryCatsReq) GetLAge() (v string) {
+func (p *QueryCatsReq) GetLAge() (v int64) {
 	return p.LAge
 }
 
-func (p *QueryCatsReq) GetRAge() (v string) {
+func (p *QueryCatsReq) GetRAge() (v int64) {
 	return p.RAge
-}
-
-func (p *QueryCatsReq) GetHealthStatus() (v string) {
-	return p.HealthStatus
 }
 
 func (p *QueryCatsReq) GetLimit() (v int64) {
@@ -1044,13 +1039,12 @@ func (p *QueryCatsReq) GetLimit() (v int64) {
 }
 
 var fieldIDToName_QueryCatsReq = map[int16]string{
-	1: "name",
+	1: "searchContent",
 	2: "breed",
 	3: "gender",
 	4: "lAge",
 	5: "rAge",
-	6: "healthStatus",
-	7: "limit",
+	6: "limit",
 }
 
 func (p *QueryCatsReq) Read(iprot thrift.TProtocol) (err error) {
@@ -1103,7 +1097,7 @@ func (p *QueryCatsReq) Read(iprot thrift.TProtocol) (err error) {
 				}
 			}
 		case 4:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField4(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -1113,7 +1107,7 @@ func (p *QueryCatsReq) Read(iprot thrift.TProtocol) (err error) {
 				}
 			}
 		case 5:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField5(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -1123,18 +1117,8 @@ func (p *QueryCatsReq) Read(iprot thrift.TProtocol) (err error) {
 				}
 			}
 		case 6:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField6(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 7:
 			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField7(iprot); err != nil {
+				if err = p.ReadField6(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else {
@@ -1176,7 +1160,7 @@ func (p *QueryCatsReq) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.Name = v
+		p.SearchContent = v
 	}
 	return nil
 }
@@ -1200,7 +1184,7 @@ func (p *QueryCatsReq) ReadField3(iprot thrift.TProtocol) error {
 }
 
 func (p *QueryCatsReq) ReadField4(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
+	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
 		p.LAge = v
@@ -1209,7 +1193,7 @@ func (p *QueryCatsReq) ReadField4(iprot thrift.TProtocol) error {
 }
 
 func (p *QueryCatsReq) ReadField5(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
+	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
 		p.RAge = v
@@ -1218,15 +1202,6 @@ func (p *QueryCatsReq) ReadField5(iprot thrift.TProtocol) error {
 }
 
 func (p *QueryCatsReq) ReadField6(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		p.HealthStatus = v
-	}
-	return nil
-}
-
-func (p *QueryCatsReq) ReadField7(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
@@ -1265,10 +1240,6 @@ func (p *QueryCatsReq) Write(oprot thrift.TProtocol) (err error) {
 			fieldId = 6
 			goto WriteFieldError
 		}
-		if err = p.writeField7(oprot); err != nil {
-			fieldId = 7
-			goto WriteFieldError
-		}
 
 	}
 	if err = oprot.WriteFieldStop(); err != nil {
@@ -1289,10 +1260,10 @@ WriteStructEndError:
 }
 
 func (p *QueryCatsReq) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("name", thrift.STRING, 1); err != nil {
+	if err = oprot.WriteFieldBegin("searchContent", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Name); err != nil {
+	if err := oprot.WriteString(p.SearchContent); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1340,10 +1311,10 @@ WriteFieldEndError:
 }
 
 func (p *QueryCatsReq) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("lAge", thrift.STRING, 4); err != nil {
+	if err = oprot.WriteFieldBegin("lAge", thrift.I64, 4); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.LAge); err != nil {
+	if err := oprot.WriteI64(p.LAge); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1357,10 +1328,10 @@ WriteFieldEndError:
 }
 
 func (p *QueryCatsReq) writeField5(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("rAge", thrift.STRING, 5); err != nil {
+	if err = oprot.WriteFieldBegin("rAge", thrift.I64, 5); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.RAge); err != nil {
+	if err := oprot.WriteI64(p.RAge); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1374,24 +1345,7 @@ WriteFieldEndError:
 }
 
 func (p *QueryCatsReq) writeField6(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("healthStatus", thrift.STRING, 6); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.HealthStatus); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 6 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
-}
-
-func (p *QueryCatsReq) writeField7(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("limit", thrift.I64, 7); err != nil {
+	if err = oprot.WriteFieldBegin("limit", thrift.I64, 6); err != nil {
 		goto WriteFieldBeginError
 	}
 	if err := oprot.WriteI64(p.Limit); err != nil {
@@ -1402,9 +1356,9 @@ func (p *QueryCatsReq) writeField7(oprot thrift.TProtocol) (err error) {
 	}
 	return nil
 WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 7 begin error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 begin error: ", p), err)
 WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 7 end error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
 }
 
 func (p *QueryCatsReq) String() string {

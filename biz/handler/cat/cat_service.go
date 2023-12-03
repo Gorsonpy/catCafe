@@ -35,16 +35,16 @@ func UpdateCat(ctx context.Context, c *app.RequestContext) {
 // QueryCats .
 // @router /cat [GET]
 func QueryCats(ctx context.Context, c *app.RequestContext) {
-	var err error
 	var req cat.QueryCatsReq
-	err = c.BindAndValidate(&req)
+	err := c.BindAndValidate(&req)
+	resp := new(cat.QueryCatsResp)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		pack.PackQueryCatsResp(resp, errno.ParamErrorCode, errno.ParamErrorMsg, nil)
 		return
 	}
 
-	resp := new(cat.QueryCatsResp)
-
+	code, msg, cats := service.QueryCats(&req)
+	pack.PackQueryCatsResp(resp, code, msg, cats)
 	c.JSON(consts.StatusOK, resp)
 }
 
