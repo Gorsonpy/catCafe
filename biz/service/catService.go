@@ -9,6 +9,58 @@ import (
 	"github.com/Gorsonpy/catCafe/pkg/errno"
 )
 
+func UpdateCat(cat *cat.CatModel) (int64, string) {
+	c, err := mysql.QueryCat(cat.CatId)
+	if err != nil {
+		return errno.UpdateErrorCode, err.Error()
+	}
+	if cat.Name != "" {
+		c.Name = cat.Name
+	}
+	if cat.Breed != "" {
+		c.Breed = cat.Breed
+	}
+	if cat.Gender != "" {
+		c.Gender = cat.Gender
+	}
+	if cat.Age != 0 {
+		c.Age = cat.Age
+	}
+	if cat.HealthStatus != "" {
+		c.HealthStatus = cat.HealthStatus
+	}
+	if cat.PhotoUrl != "" {
+		c.PhotoUrl = cat.PhotoUrl
+	}
+	if cat.CheckInDate != "" {
+		c.CheckInDate, err = time.Parse(time.DateTime, cat.CheckInDate)
+		if err != nil {
+			return errno.UpdateErrorCode, err.Error()
+		}
+	}
+
+	err = mysql.UpdateCat(&c)
+	if err != nil {
+		return errno.UpdateErrorCode, err.Error()
+	}
+	err = es.UpdateCat(&c)
+	if err != nil {
+		return errno.UpdateErrorCode, err.Error()
+	}
+
+	return errno.StatusSuccessCode, errno.SuccessMsg
+}
+func DelCat(catId int64) (int64, string) {
+	err := mysql.DelCat(catId)
+	if err != nil {
+		return errno.DelErrorCode, err.Error()
+	}
+	err = es.DelCat(catId)
+	if err != nil {
+		return errno.DelErrorCode, err.Error()
+	}
+	return errno.StatusSuccessCode, errno.SuccessMsg
+}
 func QueryCats(req *cat.QueryCatsReq) (int64, string, []*cat.CatModel) {
 	cats, err := es.QueryCats(req)
 	if err != nil {
@@ -51,5 +103,5 @@ func AddCat(cat *cat.CatModel) (int64, string, int64) {
 		return errno.CreateErrorCode, err.Error(), -1
 	}
 
-	return errno.SuccessCode, errno.SuccessMsg, esC.CatId
+	return errno.StatusSuccessCode, errno.SuccessMsg, esC.CatId
 }

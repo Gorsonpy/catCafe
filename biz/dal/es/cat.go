@@ -124,3 +124,15 @@ func AddCat(cat *Cat) error {
 
 	return nil
 }
+
+func DelCat(catId int64) error {
+	// 删除文档
+	_, err := EsClient.Delete().Index("cat_index").Id(fmt.Sprintf("%d", catId)).Do(context.Background())
+	return err
+}
+
+func UpdateCat(cat *Cat) error {
+	// 使用 Update 方法更新文档
+	_, err := EsClient.Update().Index("cat_index").Id(fmt.Sprintf("%d", cat.CatId)).Doc(cat).Do(context.Background())
+	return err
+}

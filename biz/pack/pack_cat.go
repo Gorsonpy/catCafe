@@ -2,6 +2,7 @@ package pack
 
 import "github.com/Gorsonpy/catCafe/biz/model/cat"
 
+
 func PackAddCatResp(resp *cat.AddCatResp, code int64, msg string, catId int64) {
 	resp.Base = cat.NewBaseResponse()
 	resp.Base.Code = code

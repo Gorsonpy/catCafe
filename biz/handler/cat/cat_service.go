@@ -8,6 +8,7 @@ import (
 
 	"github.com/Gorsonpy/catCafe/biz/dal/mysql"
 	cat "github.com/Gorsonpy/catCafe/biz/model/cat"
+	"github.com/Gorsonpy/catCafe/biz/model/membership"
 	"github.com/Gorsonpy/catCafe/biz/pack"
 	"github.com/Gorsonpy/catCafe/biz/service"
 	"github.com/Gorsonpy/catCafe/pkg/errno"
@@ -22,13 +23,24 @@ func UpdateCat(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req cat.CatModel
 	err = c.BindAndValidate(&req)
+
+	resp := new(membership.BaseResponse)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		pack.PackBase(resp, errno.ParamErrorCode, errno.ParamErrorMsg)
+		c.JSON(consts.StatusOK, resp)
 		return
 	}
 
-	resp := new(cat.BaseResponse)
-
+	token_byte := c.GetHeader("token")
+	claim, _ := utils.CheckToken(string(token_byte))
+	if !mysql.IsAdmin(claim.UserId) {
+		resp.Code = errno.AuthorizationFailedErrCode
+		resp.Msg = errno.PermissionFailedMsg
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+	code, msg := service.UpdateCat(&req)
+	pack.PackBase(resp, code, msg)
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -78,16 +90,26 @@ func AddCat(ctx context.Context, c *app.RequestContext) {
 // DelCat .
 // @router /cat [DELETE]
 func DelCat(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req cat.BaseRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+	resp := new(cat.BaseResponse)
+	token_byte := c.GetHeader("token")
+	claim, _ := utils.CheckToken(string(token_byte))
+	if !mysql.IsAdmin(claim.UserId) {
+		resp.Code = errno.AuthorizationFailedErrCode
+		resp.Msg = errno.PermissionFailedMsg
+		c.JSON(consts.StatusOK, resp)
 		return
 	}
 
-	resp := new(cat.BaseResponse)
-
+	id, err := strconv.Atoi(c.Query("catId"))
+	if err != nil {
+		resp.Code = errno.ParamErrorCode
+		resp.Msg = errno.ParamErrorMsg
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+	code, msg := service.DelCat(int64(id))
+	resp.Code = code
+	resp.Msg = msg
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -96,6 +118,7 @@ func DelCat(ctx context.Context, c *app.RequestContext) {
 func QueryCatsByPop(ctx context.Context, c *app.RequestContext) {
 	resp := new(cat.QueryCatsResp)
 	limit, err := strconv.Atoi(c.Query("limit"))
+
 	if err != nil {
 		pack.PackQueryCatsResp(resp, errno.AuthorizationFailedErrCode, errno.UnLoginFailedMsg, nil)
 		c.JSON(consts.StatusOK, resp)
