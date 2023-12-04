@@ -15,6 +15,7 @@ new:
 gen:
 	hz update -idl ./idl/membership.thrift
 	hz update -idl ./idl/cat.thrift
+	hz update -idl ./idl/appointment.thrift
 .PHONY: server
 server:
 	make build
