@@ -45,3 +45,8 @@ func _uploadfileMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _cat0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

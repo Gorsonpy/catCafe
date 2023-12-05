@@ -27,3 +27,7 @@ func QueryCat(catId int64) (es.Cat, error) {
 func UpdateCat(cat *es.Cat) error {
 	return DB.Table("cats").Updates(&cat).Error
 }
+
+func UpdateAppNum(cat *es.Cat) error {
+	return DB.Table("cats").Where("cat_id = ?", cat.CatId).Update("appointment_num", cat.AppointmentNum).Error
+}

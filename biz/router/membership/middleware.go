@@ -25,3 +25,18 @@ func _membershipregisterMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _updatememberreqMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _updatepointMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _querymemMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

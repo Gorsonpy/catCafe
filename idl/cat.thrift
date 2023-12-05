@@ -48,7 +48,7 @@ service CatService{
     UploadResp UploadFile(1:BaseRequest req)(api.post = "/file")
     QueryCatsResp queryCatsByPop(1:BaseRequest req)(api.get = "/cat/limit")
     BaseResponse updateCat(1:CatModel req)(api.put = "/cat")
-    QueryCatsResp queryCats(1:QueryCatsReq req)(api.get = "/cat") 
+    QueryCatsResp queryCats(1:QueryCatsReq req)(api.post = "/cat/search") 
     AddCatResp addCat(1:CatModel req)(api.post = "/cat")
     BaseResponse delCat(1:BaseRequest req)(api.delete = "/cat")
 }

@@ -7,10 +7,11 @@ struct MembershipModel{
     1: i64 customerID,
     2: string username,
     3: string contactInfo,
-    4: string points,
+    4: i64 points,
     5: string level,
     6: string registrationDate,
     7: string passwd
+    8: bool isAdmin
 }
 struct LoginRegisterReq{
     1: string username,
@@ -24,7 +25,15 @@ struct LoginResponse{
     1: BaseResponse base,
     2: map<string, string> data
 }
+
+struct QueryMemResp{
+    1: BaseResponse base
+    2: list<MembershipModel> data
+}
+
 service MembershipService{
-    LoginResponse membershipLogin(1: LoginRegisterReq req)(api.post = "/membership/login")
-    BaseResponse membershipRegister(1: LoginRegisterReq req)(api.post = "/membership/register")
+    QueryMemResp QueryMem(1:BaseRequest req)(api.get = "/membership")
+    BaseResponse UpdatePoint(1:BaseRequest req)(api.put = "/membership")
+    LoginResponse MembershipLogin(1: LoginRegisterReq req)(api.post = "/membership/login")
+    BaseResponse MembershipRegister(1: LoginRegisterReq req)(api.post = "/membership/register")
 }

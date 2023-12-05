@@ -17,13 +17,14 @@ import (
 func Register(r *server.Hertz) {
 
 	root := r.Group("/", rootMw()...)
-	root.PUT("/cat", append(_updatecatMw(), cat.UpdateCat)...)
-	root.GET("/cat", append(_querycatsMw(), cat.QueryCats)...)
 	root.POST("/cat", append(_addcatMw(), cat.AddCat)...)
 	root.DELETE("/cat", append(_delcatMw(), cat.DelCat)...)
 	root.POST("/file", append(_uploadfileMw(), cat.UploadFile)...)
+	root.PUT("/cat", append(_updatecatMw(), cat.UpdateCat)...)
+	_cat := root.Group("/cat", _catMw()...)
+	_cat.POST("/search", append(_querycatsMw(), cat.QueryCats)...)
 	{
-		_cat := root.Group("/cat", _catMw()...)
-		_cat.GET("/limit", append(_querycatsbypopMw(), cat.QueryCatsByPop)...)
+		_cat0 := root.Group("/cat", _cat0Mw()...)
+		_cat0.GET("/limit", append(_querycatsbypopMw(), cat.QueryCatsByPop)...)
 	}
 }

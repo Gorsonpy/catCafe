@@ -40,3 +40,8 @@ func _confirmstatusMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _appointment0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

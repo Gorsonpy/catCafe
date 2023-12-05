@@ -42,3 +42,30 @@ func MembershipLogin(username string, passwd string) (int64, string, string, boo
 	}
 	return errno.StatusSuccessCode, errno.SuccessMsg, token, mysql.IsAdmin(m.CustomerID)
 }
+
+func UpdatePoints(id int64, delta int64) (int64, string) {
+	mem, err := mysql.GetMembershipById(id)
+	if err != nil {
+		return errno.UpdateErrorCode, err.Error()
+	}
+	mem.Points = mem.Points + delta
+	err = mysql.UpdateMemPoint(id, mem.Points)
+	if err != nil {
+		return errno.UpdateErrorCode, err.Error()
+	}
+	return errno.StatusSuccessCode, errno.SuccessMsg
+}
+
+func ListMem() (int64, string, []*membership.MembershipModel) {
+	mems, err := mysql.ListMem()
+	if err != nil {
+		return errno.GetErrorCode, err.Error(), nil
+	}
+
+	list := make([]*membership.MembershipModel, 0)
+	for _, mem := range mems {
+		tmp := mysql.MemToModel(mem)
+		list = append(list, tmp)
+	}
+	return errno.StatusSuccessCode, errno.SuccessMsg, list
+}

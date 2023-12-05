@@ -45,7 +45,7 @@ struct UpdateAppointmentReq{
 
 service AppointmentService{
     BaseResponse CreateAppointment(1: CreateAppointmentReq req)(api.post = "/appointment")
-    QueryAppointmentResp QueryAppointment(1:QueryAppointmentReq req)(api.get = "/appointment")
+    QueryAppointmentResp QueryAppointment(1:QueryAppointmentReq req)(api.get = "/appointment/current")
     BaseResponse UpdateAppointment(1: UpdateAppointmentReq req)(api.put = "/appointment")
     BaseResponse ConfirmStatus(1: BaseRequest req)(api.put = "/appointment/confirm")
     BaseResponse DelAppointment(1: BaseRequest req)(api.delete = "/appointment")

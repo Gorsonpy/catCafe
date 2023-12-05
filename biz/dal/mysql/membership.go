@@ -8,7 +8,7 @@ import (
 )
 
 type Membership struct {
-	CustomerID       int64
+	CustomerID       int64 `gorm:"primary_key"`
 	Username         string
 	ContactInfo      string
 	Points           int64
@@ -36,8 +36,39 @@ func GetMembershipByUsername(username string) *Membership {
 	return mem
 }
 
+func GetMembershipById(userId int64) (*Membership, error) {
+	mem := &Membership{}
+	err := DB.Table("memberships").Where("customer_id = ?", userId).First(&mem).Error
+	return mem, err
+}
+
+func UpdateMemPoint(memId int64, points int64) error {
+	return DB.Table("memberships").Where("customer_id = ?", memId).Update("points", points).Error
+}
+
 func IsAdmin(userId int64) bool {
 	mem := &Membership{}
 	DB.Table("memberships").Where("customer_id = ?", userId).First(&mem)
 	return mem.IsAdmin
+}
+
+func ListMem() ([]*Membership, error) {
+	list := make([]*Membership, 0)
+	err := DB.Table("memberships").Find(&list).Error
+	if err == gorm.ErrRecordNotFound {
+		err = nil
+	}
+	return list, err
+}
+
+func MemToModel(mem *Membership) *membership.MembershipModel {
+	model := membership.NewMembershipModel()
+	model.CustomerID = mem.CustomerID
+	model.Username = mem.Username
+	model.ContactInfo = mem.ContactInfo
+	model.Points = mem.Points
+	model.Level = mem.Level
+	model.RegistrationDate = mem.RegistrationDate.Format(time.DateTime)
+	model.IsAdmin = mem.IsAdmin
+	return model
 }

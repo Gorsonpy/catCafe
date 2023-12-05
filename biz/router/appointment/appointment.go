@@ -17,10 +17,11 @@ import (
 func Register(r *server.Hertz) {
 
 	root := r.Group("/", rootMw()...)
-	root.GET("/appointment", append(_queryappointmentMw(), appointment.QueryAppointment)...)
-	root.PUT("/appointment", append(_updateappointmentMw(), appointment.UpdateAppointment)...)
 	root.DELETE("/appointment", append(_delappointmentMw(), appointment.DelAppointment)...)
-	root.POST("/appointment", append(_createappointmentMw(), appointment.CreateAppointment)...)
+	root.PUT("/appointment", append(_updateappointmentMw(), appointment.UpdateAppointment)...)
 	_appointment := root.Group("/appointment", _appointmentMw()...)
 	_appointment.PUT("/confirm", append(_confirmstatusMw(), appointment.ConfirmStatus)...)
+	root.POST("/appointment", append(_createappointmentMw(), appointment.CreateAppointment)...)
+	_appointment0 := root.Group("/appointment", _appointment0Mw()...)
+	_appointment0.GET("/current", append(_queryappointmentMw(), appointment.QueryAppointment)...)
 }

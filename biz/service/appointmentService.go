@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/Gorsonpy/catCafe/biz/dal/mysql"
@@ -73,7 +74,34 @@ func ConfirmStatus(id int64, st int64) (int64, string) {
 	if st == 1 {
 		f = true
 	}
-	err := mysql.ConfirmStatus(id, f)
+
+	catId, err := mysql.GetCatIdByAppId(id)
+	if err != nil {
+		return errno.UpdateErrorCode, err.Error()
+	}
+	cat, err := mysql.QueryCat(catId)
+	if err != nil {
+		return errno.UpdateErrorCode, err.Error()
+	}
+
+	app, err := mysql.QueryAppByAppId(id)
+	if err != nil {
+		return errno.UpdateErrorCode, err.Error()
+	}
+
+	if !f && app.Status {
+		cat.AppointmentNum = cat.AppointmentNum - 1
+	} else if f && !app.Status {
+		cat.AppointmentNum = cat.AppointmentNum + 1
+	}
+
+	err = mysql.ConfirmStatus(id, f)
+	if err != nil {
+		return errno.UpdateErrorCode, err.Error()
+	}
+
+	fmt.Println(cat)
+	err = mysql.UpdateAppNum(&cat)
 	if err != nil {
 		return errno.UpdateErrorCode, err.Error()
 	}

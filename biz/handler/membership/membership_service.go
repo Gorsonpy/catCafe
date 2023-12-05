@@ -4,11 +4,14 @@ package membership
 
 import (
 	"context"
+	"strconv"
 
+	"github.com/Gorsonpy/catCafe/biz/dal/mysql"
 	membership "github.com/Gorsonpy/catCafe/biz/model/membership"
 	"github.com/Gorsonpy/catCafe/biz/pack"
 	"github.com/Gorsonpy/catCafe/biz/service"
 	"github.com/Gorsonpy/catCafe/pkg/errno"
+	"github.com/Gorsonpy/catCafe/pkg/utils"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
@@ -46,5 +49,53 @@ func MembershipRegister(ctx context.Context, c *app.RequestContext) {
 	}
 	code, msg := service.MembershipRegister(req.Username, req.Passwd)
 	pack.PackBase(resp, code, msg)
+	c.JSON(consts.StatusOK, resp)
+}
+
+// UpdatePoint .
+// @router /membership [POST]
+func UpdatePoint(ctx context.Context, c *app.RequestContext) {
+	var err error
+
+	resp := new(membership.BaseResponse)
+	token_byte := c.GetHeader("token")
+	claim, _ := utils.CheckToken(string(token_byte))
+	if !mysql.IsAdmin(claim.UserId) {
+		pack.PackBase(resp, errno.AuthorizationFailedErrCode, errno.PermissionFailedMsg)
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	id, err := strconv.Atoi(c.Query("customerId"))
+	if err != nil {
+		pack.PackBase(resp, errno.ParamErrorCode, errno.ParamErrorMsg)
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+	delta, err := strconv.Atoi(c.Query("pointsChange"))
+	if err != nil {
+		pack.PackBase(resp, errno.ParamErrorCode, errno.ParamErrorMsg)
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+	code, msg := service.UpdatePoints(int64(id), int64(delta))
+	pack.PackBase(resp, code, msg)
+	c.JSON(consts.StatusOK, resp)
+}
+
+// QueryMem .
+// @router /membership [GET]
+func QueryMem(ctx context.Context, c *app.RequestContext) {
+	resp := new(membership.QueryMemResp)
+
+	token_byte := c.GetHeader("token")
+	claim, _ := utils.CheckToken(string(token_byte))
+	if !mysql.IsAdmin(claim.UserId) {
+		pack.PackQueryMem(resp, errno.AuthorizationFailedErrCode, errno.PermissionFailedMsg, nil)
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+	code, msg, list := service.ListMem()
+	pack.PackQueryMem(resp, code, msg, list)
 	c.JSON(consts.StatusOK, resp)
 }

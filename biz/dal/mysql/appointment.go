@@ -45,6 +45,13 @@ func QueryApp(customerId int64, start string, end string) ([]*Appointment, error
 func ConfirmStatus(id int64, f bool) error {
 	return DB.Table("appointments").Where("appointment_id = ?", id).Update("status", f).Error
 }
+func GetCatIdByAppId(appointmentId int64) (int64, error){
+	app := Appointment{}
+	err := DB.Table("appointments").Where("appointment_id = ?", appointmentId).First(&app).Error
+	return app.CatId, err
+}
+
+
 
 func DelApp(id int64) error {
 	return DB.Table("appointments").Where("appointment_id = ?", id).Delete(&Appointment{}).Error

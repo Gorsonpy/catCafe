@@ -13,12 +13,11 @@ import (
 )
 
 var (
-	dsn string
-	DB  *gorm.DB
+	DB *gorm.DB
 )
 
 func Init() {
-	dataBytes, err := os.ReadFile("../config/config.yaml")
+	dataBytes, err := os.ReadFile("/root/code/catCafe/config/config.yaml")
 	if err != nil {
 		panic(err)
 	}
