@@ -39,7 +39,13 @@ struct QueryCatsResp{
     2: list<CatModel> data
 }
 
+struct UploadResp{
+    1: BaseResponse base
+    2: map<string, string> data
+}
+
 service CatService{
+    UploadResp UploadFile(1:BaseRequest req)(api.post = "/file")
     QueryCatsResp queryCatsByPop(1:BaseRequest req)(api.get = "/cat/limit")
     BaseResponse updateCat(1:CatModel req)(api.put = "/cat")
     QueryCatsResp queryCats(1:QueryCatsReq req)(api.get = "/cat") 

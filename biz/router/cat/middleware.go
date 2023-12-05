@@ -40,3 +40,8 @@ func _querycatsbypopMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _uploadfileMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

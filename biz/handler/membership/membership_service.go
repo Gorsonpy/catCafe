@@ -20,14 +20,15 @@ func MembershipLogin(ctx context.Context, c *app.RequestContext) {
 	var req membership.LoginRegisterReq
 	resp := new(membership.LoginResponse)
 	err = c.BindAndValidate(&req)
+
 	if err != nil {
-		pack.PackLoginResp(resp, errno.ParamError.ErrorCode, errno.ParamError.ErrorMsg, "")
+		pack.PackLoginResp(resp, errno.ParamError.ErrorCode, errno.ParamError.ErrorMsg, "", false)
 		c.JSON(consts.StatusOK, resp)
 		return
 	}
 
-	code, msg, token := service.MembershipLogin(req.Username, req.Passwd)
-	pack.PackLoginResp(resp, code, msg, token)
+	code, msg, token, isAdmin := service.MembershipLogin(req.Username, req.Passwd)
+	pack.PackLoginResp(resp, code, msg, token, isAdmin)
 	c.JSON(consts.StatusOK, resp)
 }
 

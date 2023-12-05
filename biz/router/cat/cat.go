@@ -21,6 +21,7 @@ func Register(r *server.Hertz) {
 	root.GET("/cat", append(_querycatsMw(), cat.QueryCats)...)
 	root.POST("/cat", append(_addcatMw(), cat.AddCat)...)
 	root.DELETE("/cat", append(_delcatMw(), cat.DelCat)...)
+	root.POST("/file", append(_uploadfileMw(), cat.UploadFile)...)
 	{
 		_cat := root.Group("/cat", _catMw()...)
 		_cat.GET("/limit", append(_querycatsbypopMw(), cat.QueryCatsByPop)...)
