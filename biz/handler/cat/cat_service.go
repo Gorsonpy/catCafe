@@ -94,6 +94,15 @@ func AddCat(ctx context.Context, c *app.RequestContext) {
 // @router /cat [DELETE]
 func DelCat(ctx context.Context, c *app.RequestContext) {
 	resp := new(cat.BaseResponse)
+	var req cat.DelCatsReq
+	err := c.BindAndValidate(&req)
+	if err != nil {
+		resp.Code = errno.ParamErrorCode
+		resp.Msg = err.Error()
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
 	token_byte := c.GetHeader("token")
 	claim, _ := utils.CheckToken(string(token_byte))
 	if !mysql.IsAdmin(claim.UserId) {
@@ -103,14 +112,13 @@ func DelCat(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	id, err := strconv.Atoi(c.Query("catId"))
 	if err != nil {
 		resp.Code = errno.ParamErrorCode
 		resp.Msg = errno.ParamErrorMsg
 		c.JSON(consts.StatusOK, resp)
 		return
 	}
-	code, msg := service.DelCat(int64(id))
+	code, msg := service.DelCat(req.CatIds)
 	resp.Code = code
 	resp.Msg = msg
 	c.JSON(consts.StatusOK, resp)

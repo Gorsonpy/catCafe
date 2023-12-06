@@ -26,6 +26,10 @@ struct AddCatResp{
     2: map<string, i64> data
 }
 
+struct DelCatsReq{
+    1: list<i64> catIds
+}
+
 struct QueryCatsReq{
     1: string searchContent
     2: string breed
@@ -50,5 +54,5 @@ service CatService{
     BaseResponse updateCat(1:CatModel req)(api.put = "/cat")
     QueryCatsResp queryCats(1:QueryCatsReq req)(api.post = "/cat/search") 
     AddCatResp addCat(1:CatModel req)(api.post = "/cat")
-    BaseResponse delCat(1:BaseRequest req)(api.delete = "/cat")
+    BaseResponse delCat(1:DelCatsReq req)(api.delete = "/cat")
 }

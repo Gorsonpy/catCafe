@@ -50,14 +50,17 @@ func UpdateCat(cat *cat.CatModel) (int64, string) {
 
 	return errno.StatusSuccessCode, errno.SuccessMsg
 }
-func DelCat(catId int64) (int64, string) {
-	err := mysql.DelCat(catId)
-	if err != nil {
-		return errno.DelErrorCode, err.Error()
-	}
-	err = es.DelCat(catId)
-	if err != nil {
-		return errno.DelErrorCode, err.Error()
+func DelCat(catIds []int64) (int64, string) {
+	var err error
+	for _, id := range catIds {
+		err = mysql.DelCat(id)
+		if err != nil {
+			return errno.DelErrorCode, err.Error()
+		}
+		err = es.DelCat(id)
+		if err != nil {
+			return errno.DelErrorCode, err.Error()
+		}
 	}
 	return errno.StatusSuccessCode, errno.SuccessMsg
 }

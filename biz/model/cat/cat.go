@@ -1001,6 +1001,164 @@ func (p *AddCatResp) String() string {
 	return fmt.Sprintf("AddCatResp(%+v)", *p)
 }
 
+type DelCatsReq struct {
+	CatIds []int64 `thrift:"catIds,1" form:"catIds" json:"catIds" query:"catIds"`
+}
+
+func NewDelCatsReq() *DelCatsReq {
+	return &DelCatsReq{}
+}
+
+func (p *DelCatsReq) GetCatIds() (v []int64) {
+	return p.CatIds
+}
+
+var fieldIDToName_DelCatsReq = map[int16]string{
+	1: "catIds",
+}
+
+func (p *DelCatsReq) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_DelCatsReq[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *DelCatsReq) ReadField1(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.CatIds = make([]int64, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem int64
+		if v, err := iprot.ReadI64(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		p.CatIds = append(p.CatIds, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *DelCatsReq) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("DelCatsReq"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *DelCatsReq) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("catIds", thrift.LIST, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteListBegin(thrift.I64, len(p.CatIds)); err != nil {
+		return err
+	}
+	for _, v := range p.CatIds {
+		if err := oprot.WriteI64(v); err != nil {
+			return err
+		}
+	}
+	if err := oprot.WriteListEnd(); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *DelCatsReq) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("DelCatsReq(%+v)", *p)
+}
+
 type QueryCatsReq struct {
 	SearchContent string `thrift:"searchContent,1" form:"searchContent" json:"searchContent" query:"searchContent"`
 	Breed         string `thrift:"breed,2" form:"breed" json:"breed" query:"breed"`
@@ -1813,7 +1971,7 @@ type CatService interface {
 
 	AddCat(ctx context.Context, req *CatModel) (r *AddCatResp, err error)
 
-	DelCat(ctx context.Context, req *BaseRequest) (r *BaseResponse, err error)
+	DelCat(ctx context.Context, req *DelCatsReq) (r *BaseResponse, err error)
 }
 
 type CatServiceClient struct {
@@ -1887,7 +2045,7 @@ func (p *CatServiceClient) AddCat(ctx context.Context, req *CatModel) (r *AddCat
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *CatServiceClient) DelCat(ctx context.Context, req *BaseRequest) (r *BaseResponse, err error) {
+func (p *CatServiceClient) DelCat(ctx context.Context, req *DelCatsReq) (r *BaseResponse, err error) {
 	var _args CatServiceDelCatArgs
 	_args.Req = req
 	var _result CatServiceDelCatResult
@@ -3692,16 +3850,16 @@ func (p *CatServiceAddCatResult) String() string {
 }
 
 type CatServiceDelCatArgs struct {
-	Req *BaseRequest `thrift:"req,1"`
+	Req *DelCatsReq `thrift:"req,1"`
 }
 
 func NewCatServiceDelCatArgs() *CatServiceDelCatArgs {
 	return &CatServiceDelCatArgs{}
 }
 
-var CatServiceDelCatArgs_Req_DEFAULT *BaseRequest
+var CatServiceDelCatArgs_Req_DEFAULT *DelCatsReq
 
-func (p *CatServiceDelCatArgs) GetReq() (v *BaseRequest) {
+func (p *CatServiceDelCatArgs) GetReq() (v *DelCatsReq) {
 	if !p.IsSetReq() {
 		return CatServiceDelCatArgs_Req_DEFAULT
 	}
@@ -3776,7 +3934,7 @@ ReadStructEndError:
 }
 
 func (p *CatServiceDelCatArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = NewBaseRequest()
+	p.Req = NewDelCatsReq()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
